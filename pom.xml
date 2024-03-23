@@ -25,10 +25,10 @@
 
     <developers>
         <developer>
-            <name>xiaofuge</name>
-            <email>184172133@qq.com</email>
-            <organization>fuzhengwei</organization>
-            <organizationUrl>https://github.com/fuzhengwei</organizationUrl>
+            <name>PeregrineCalder</name>
+            <email>peregrine.calder@gmail.com</email>
+            <organization>PeregrineCalder</organization>
+            <organizationUrl>https://github.com/PeregrineCalder</organizationUrl>
         </developer>
     </developers>
 
@@ -64,6 +64,11 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>2.0.28</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.26</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
