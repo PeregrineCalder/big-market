@@ -13,7 +13,6 @@ import java.util.Map;
  * @version: 1.0
  */
 public interface IStrategyRepository {
-
     List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId);
     void storeStrategyAwardSearchRateTable(String key, int rateRange, Map<Integer, Integer> strategyAwardSearchRateTable);
     int getRateRange(Long strategyId);
