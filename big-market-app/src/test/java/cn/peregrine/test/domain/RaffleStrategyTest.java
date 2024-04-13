@@ -4,6 +4,8 @@ import cn.peregrine.domain.strategy.model.entity.RaffleAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.RaffleFactorEntity;
 import cn.peregrine.domain.strategy.model.entity.RuleActionEntity;
 import cn.peregrine.domain.strategy.service.IRaffleStrategy;
+import cn.peregrine.domain.strategy.service.armory.IStrategyArmory;
+import cn.peregrine.domain.strategy.service.rule.impl.RuleLockLogicFilter;
 import cn.peregrine.domain.strategy.service.rule.impl.RuleWeightLogicFilter;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +32,19 @@ import javax.annotation.Resource;
 @SpringBootTest
 public class RaffleStrategyTest {
     @Resource
+    private IStrategyArmory strategyArmory;
+    @Resource
     private IRaffleStrategy raffleStrategy;
     @Resource
     private RuleWeightLogicFilter ruleWeightLogicFilter;
+    @Resource
+    private RuleLockLogicFilter ruleLockLogicFilter;
+
     @Before
     public void setup() {
+        log.info("测试结果：{}", strategyArmory.assembleLotteryStrategy(100001L));
         ReflectionTestUtils.setField(ruleWeightLogicFilter, "userScore", 4500L);
+        ReflectionTestUtils.setField(ruleLockLogicFilter, "userRaffleCount", 10L);
     }
     @Test
     public void test_performRaffle() {
@@ -59,5 +68,15 @@ public class RaffleStrategyTest {
         log.info("测试结果：{}", JSON.toJSONString(raffleAwardEntity));
     }
 
+    @Test
+    public void test_raffle_center_rule_lock() {
+        RaffleFactorEntity raffleFactorEntity = RaffleFactorEntity.builder()
+                .userId("user004")
+                .strategyId(100001L)
+                .build();
+        RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(raffleFactorEntity);
+        log.info("请求参数：{}", JSON.toJSONString(raffleFactorEntity));
+        log.info("测试结果：{}", JSON.toJSONString(raffleAwardEntity));
+    }
 
 }

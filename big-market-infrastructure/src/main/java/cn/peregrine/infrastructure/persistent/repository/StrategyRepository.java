@@ -3,6 +3,7 @@ package cn.peregrine.infrastructure.persistent.repository;
 import cn.peregrine.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyRuleEntity;
+import cn.peregrine.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import cn.peregrine.domain.strategy.repository.IStrategyRepository;
 import cn.peregrine.infrastructure.persistent.dao.IStrategyAwardDao;
 import cn.peregrine.infrastructure.persistent.dao.IStrategyDao;
@@ -132,4 +133,14 @@ public class StrategyRepository implements IStrategyRepository {
         return strategyRuleDao.queryStrategyRuleValue(strategyRule);
     }
 
+    @Override
+    public StrategyAwardRuleModelVO queryStrategyAwardRuleModels(Long strategyId, Integer awardId) {
+        StrategyAward strategyAward = new StrategyAward();
+        strategyAward.setStrategyId(strategyId);
+        strategyAward.setAwardId(awardId);
+        String ruleModels = strategyAwardDao.queryStrategyAwardRuleModels(strategyAward);
+        return StrategyAwardRuleModelVO.builder()
+                .ruleModels(ruleModels)
+                .build();
+    }
 }

@@ -3,6 +3,7 @@ package cn.peregrine.domain.strategy.repository;
 import cn.peregrine.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyRuleEntity;
+import cn.peregrine.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 
 import java.util.List;
 import java.util.Map;
@@ -22,5 +23,5 @@ public interface IStrategyRepository {
     StrategyEntity queryStrategyEntityByStrategyId(Long strategyId);
     StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel);
     String queryStrategyRuleValue(Long strategyId, Integer awardId, String ruleModel);
-
+    StrategyAwardRuleModelVO queryStrategyAwardRuleModels(Long strategyId, Integer awardId);
 }
