@@ -1,4 +1,4 @@
-package cn.peregrine.domain.strategy.service.rule;
+package cn.peregrine.domain.strategy.service.rule.filter;
 
 import cn.peregrine.domain.strategy.model.entity.RuleActionEntity;
 import cn.peregrine.domain.strategy.model.entity.RuleMatterEntity;

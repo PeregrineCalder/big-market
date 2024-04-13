@@ -1,13 +1,12 @@
-package cn.peregrine.domain.strategy.service.rule.impl;
+package cn.peregrine.domain.strategy.service.rule.filter.impl;
 
 import cn.peregrine.domain.strategy.model.entity.RuleActionEntity;
 import cn.peregrine.domain.strategy.model.entity.RuleMatterEntity;
 import cn.peregrine.domain.strategy.model.valobj.RuleLogicCheckTypeVO;
 import cn.peregrine.domain.strategy.repository.IStrategyRepository;
 import cn.peregrine.domain.strategy.service.annotation.LogicStrategy;
-import cn.peregrine.domain.strategy.service.raffle.DefaultRaffleStrategy;
-import cn.peregrine.domain.strategy.service.rule.ILogicFilter;
-import cn.peregrine.domain.strategy.service.rule.factory.DefaultLogicFactory;
+import cn.peregrine.domain.strategy.service.rule.filter.ILogicFilter;
+import cn.peregrine.domain.strategy.service.rule.filter.factory.DefaultLogicFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,7 @@ import javax.annotation.Resource;
 
 /**
  * @projectName: big-market
- * @package: cn.peregrine.domain.strategy.service.rule.impl
+ * @package: cn.peregrine.domain.strategy.service.rule.filter.impl
  * @className: RuleLockLogicFilter
  * @author: Peregrine Calder
  * @description: 用户抽奖 n 次后解锁抽奖奖品

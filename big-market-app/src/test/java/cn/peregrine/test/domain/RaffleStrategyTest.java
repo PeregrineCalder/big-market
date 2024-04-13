@@ -2,11 +2,11 @@ package cn.peregrine.test.domain;
 
 import cn.peregrine.domain.strategy.model.entity.RaffleAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.RaffleFactorEntity;
-import cn.peregrine.domain.strategy.model.entity.RuleActionEntity;
 import cn.peregrine.domain.strategy.service.IRaffleStrategy;
 import cn.peregrine.domain.strategy.service.armory.IStrategyArmory;
-import cn.peregrine.domain.strategy.service.rule.impl.RuleLockLogicFilter;
-import cn.peregrine.domain.strategy.service.rule.impl.RuleWeightLogicFilter;
+import cn.peregrine.domain.strategy.service.rule.chain.factory.DefaultChainFactory;
+import cn.peregrine.domain.strategy.service.rule.chain.impl.RuleWeightLogicChain;
+import cn.peregrine.domain.strategy.service.rule.filter.impl.RuleLockLogicFilter;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -36,14 +36,14 @@ public class RaffleStrategyTest {
     @Resource
     private IRaffleStrategy raffleStrategy;
     @Resource
-    private RuleWeightLogicFilter ruleWeightLogicFilter;
+    private RuleWeightLogicChain ruleWeightLogicChain;
     @Resource
     private RuleLockLogicFilter ruleLockLogicFilter;
 
     @Before
     public void setup() {
         log.info("测试结果：{}", strategyArmory.assembleLotteryStrategy(100001L));
-        ReflectionTestUtils.setField(ruleWeightLogicFilter, "userScore", 4500L);
+        ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4500L);
         ReflectionTestUtils.setField(ruleLockLogicFilter, "userRaffleCount", 10L);
     }
     @Test

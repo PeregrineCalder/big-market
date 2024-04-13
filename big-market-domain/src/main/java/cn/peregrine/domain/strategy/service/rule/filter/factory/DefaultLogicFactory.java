@@ -1,8 +1,8 @@
-package cn.peregrine.domain.strategy.service.rule.factory;
+package cn.peregrine.domain.strategy.service.rule.filter.factory;
 
 import cn.peregrine.domain.strategy.model.entity.RuleActionEntity;
 import cn.peregrine.domain.strategy.service.annotation.LogicStrategy;
-import cn.peregrine.domain.strategy.service.rule.ILogicFilter;
+import cn.peregrine.domain.strategy.service.rule.filter.ILogicFilter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @projectName: big-market
- * @package: cn.peregrine.domain.strategy.service.rule.factory
+ * @package: cn.peregrine.domain.strategy.service.rule.filter.factory
  * @className: DefaultLogicFactory
  * @author: Peregrine Calder
  * @description: 规则工厂

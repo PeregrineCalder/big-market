@@ -1,6 +1,6 @@
 package cn.peregrine.domain.strategy.model.valobj;
 
-import cn.peregrine.domain.strategy.service.rule.factory.DefaultLogicFactory;
+import cn.peregrine.domain.strategy.service.rule.filter.factory.DefaultLogicFactory;
 import cn.peregrine.types.common.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
