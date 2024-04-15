@@ -55,6 +55,7 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
     }
     private void assembleLotteryStrategy(String key, List<StrategyAwardEntity> strategyAwardEntities) {
         // 获取最小概率值
+        // map: 转换 stream 中的数据类型
         BigDecimal minAwardRate = strategyAwardEntities.stream()
                 .map(StrategyAwardEntity::getAwardRate)
                 .min(BigDecimal::compareTo)
