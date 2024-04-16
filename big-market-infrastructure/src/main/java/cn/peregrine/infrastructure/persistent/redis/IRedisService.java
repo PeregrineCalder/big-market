@@ -240,4 +240,11 @@ public interface IRedisService {
      * @return 返回结果
      */
     <T> RBloomFilter<T> getBloomFilter(String key);
+
+    void setAtomicLong(String key, Integer value);
+
+    Long getAtomicLong(String key);
+
+    Boolean setNx(String Key);
+
 }
