@@ -1,10 +1,13 @@
 package cn.peregrine.domain.strategy.service.raffle;
 
+import cn.peregrine.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.peregrine.domain.strategy.model.valobj.RuleTreeVO;
 import cn.peregrine.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import cn.peregrine.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
 import cn.peregrine.domain.strategy.repository.IStrategyRepository;
 import cn.peregrine.domain.strategy.service.AbstractRaffleStrategy;
+import cn.peregrine.domain.strategy.service.IRaffleAward;
+import cn.peregrine.domain.strategy.service.IRaffleStock;
 import cn.peregrine.domain.strategy.service.armory.IStrategyDispatch;
 import cn.peregrine.domain.strategy.service.rule.chain.ILogicChain;
 import cn.peregrine.domain.strategy.service.rule.chain.factory.DefaultChainFactory;
@@ -12,6 +15,8 @@ import cn.peregrine.domain.strategy.service.rule.tree.factory.DefaultTreeFactory
 import cn.peregrine.domain.strategy.service.rule.tree.factory.engine.IDecisionTreeEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @projectName: big-market
@@ -24,7 +29,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class DefaultRaffleStrategy extends AbstractRaffleStrategy {
+public class DefaultRaffleStrategy extends AbstractRaffleStrategy implements IRaffleAward, IRaffleStock {
     public DefaultRaffleStrategy(IStrategyRepository repository, IStrategyDispatch strategyDispatch, DefaultChainFactory defaultChainFactory, DefaultTreeFactory defaultTreeFactory) {
         super(repository, strategyDispatch, defaultChainFactory, defaultTreeFactory);
     }
@@ -59,5 +64,10 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy {
     @Override
     public void updateStrategyAwardStock(Long strategyId, Integer awardId) {
         repository.updateStrategyAwardStock(strategyId, awardId);
+    }
+
+    @Override
+    public List<StrategyAwardEntity> queryRaffleStrategyAwardList(Long strategyId) {
+        return repository.queryStrategyAwardList(strategyId);
     }
 }
