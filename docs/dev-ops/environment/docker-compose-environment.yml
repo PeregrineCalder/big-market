@@ -17,6 +17,7 @@ services:
       - "13306:3306"
     volumes:
       - ./mysql/sql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
     # HEALTHCHECK 指令告诉 Docker 该如何判断容器的状态是否正常
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
@@ -28,11 +29,12 @@ services:
       retries: 10
       start_period: 15s
 
+
   alpine:
     image: alpine:3.18.2
     container_name: alpine
     volumes:
-      - /var/lib/mysql
+      - mysql-data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin:5.2.1
@@ -90,3 +92,6 @@ services:
 networks:
   my-network:
     driver: bridge
+
+volumes:
+  mysql-data:

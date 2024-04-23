@@ -4,7 +4,6 @@ import cn.peregrine.domain.strategy.model.entity.RaffleAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.RaffleFactorEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.peregrine.domain.strategy.service.IRaffleAward;
-import cn.peregrine.domain.strategy.service.IRaffleStock;
 import cn.peregrine.domain.strategy.service.IRaffleStrategy;
 import cn.peregrine.domain.strategy.service.armory.IStrategyArmory;
 import cn.peregrine.trigger.api.IRaffleService;
