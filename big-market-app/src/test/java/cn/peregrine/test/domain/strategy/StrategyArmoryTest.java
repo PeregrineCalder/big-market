@@ -1,4 +1,4 @@
-package cn.peregrine.test.domain;
+package cn.peregrine.test.domain.strategy;
 
 import cn.peregrine.domain.strategy.service.armory.IStrategyArmory;
 import cn.peregrine.domain.strategy.service.armory.IStrategyDispatch;

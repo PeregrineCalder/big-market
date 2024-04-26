@@ -1,4 +1,4 @@
-package cn.peregrine.test.domain;
+package cn.peregrine.test.domain.strategy;
 
 import cn.peregrine.domain.strategy.model.valobj.*;
 import cn.peregrine.domain.strategy.service.rule.tree.factory.DefaultTreeFactory;
