@@ -1,5 +1,6 @@
 package cn.peregrine.domain.activity.repository;
 
+import cn.peregrine.domain.activity.model.aggregate.CreateOrderAggregate;
 import cn.peregrine.domain.activity.model.entity.ActivityCountEntity;
 import cn.peregrine.domain.activity.model.entity.ActivityEntity;
 import cn.peregrine.domain.activity.model.entity.ActivitySkuEntity;
@@ -10,7 +11,6 @@ public interface IActivityRepository {
     ActivitySkuEntity queryActivitySku(Long sku);
     ActivityEntity queryRaffleActivityByActivityId(Long activityId);
     ActivityCountEntity queryRaffleActivityCountByActivityCountId(Long activityCountId);
-
-
+    void doSaveOrder(CreateOrderAggregate createOrderAggregate);
 
 }
