@@ -2,6 +2,8 @@ package cn.peregrine.infrastructure.persistent.redis;
 
 import org.redisson.api.*;
 
+import java.util.concurrent.TimeUnit;
+
 public interface IRedisService {
 
     /**
@@ -247,4 +249,5 @@ public interface IRedisService {
 
     Boolean setNx(String Key);
 
+    Boolean setNx(String key, long expired, TimeUnit timeUnit);
 }
