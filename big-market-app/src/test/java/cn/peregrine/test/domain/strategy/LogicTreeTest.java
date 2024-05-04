@@ -87,7 +87,7 @@ public class LogicTreeTest {
             put("rule_luck_award", rule_luck_award);
         }});
         IDecisionTreeEngine treeEngine = defaultTreeFactory.openLogicTree(ruleTreeVO);
-        DefaultTreeFactory.StrategyAwardVO data = treeEngine.process("peregrine", 100001L, 100);
+        DefaultTreeFactory.StrategyAwardVO data = treeEngine.process("peregrine", 100001L, 100, null);
         log.info("测试结果：{}", JSON.toJSONString(data));
     }
 }

@@ -14,4 +14,7 @@ public interface IRaffleActivityPartakeService {
      * @return 用户抽奖订单实体对象
      */
     UserRaffleOrderEntity createOrder(PartakeRaffleActivityEntity partakeRaffleActivityEntity);
+
+    UserRaffleOrderEntity createOrder(String userId, Long activityId);
+
 }

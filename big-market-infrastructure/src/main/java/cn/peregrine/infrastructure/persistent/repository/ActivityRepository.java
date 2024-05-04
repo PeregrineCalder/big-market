@@ -16,6 +16,7 @@ import cn.peregrine.infrastructure.persistent.redis.IRedisService;
 import cn.peregrine.types.common.Constants;
 import cn.peregrine.types.enums.ResponseCode;
 import cn.peregrine.types.exception.AppException;
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
@@ -26,7 +27,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -86,7 +90,9 @@ public class ActivityRepository implements IActivityRepository {
     public ActivityEntity queryRaffleActivityByActivityId(Long activityId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.ACTIVITY_KEY + activityId;
-        ActivityEntity activityEntity = redisService.getValue(cacheKey);
+//        ActivityEntity activityEntity = redisService.getValue(cacheKey);
+
+        ActivityEntity activityEntity = JSON.to(ActivityEntity.class, redisService.getValue(cacheKey));
         if (activityEntity != null) {
             return activityEntity;
         }
@@ -109,7 +115,8 @@ public class ActivityRepository implements IActivityRepository {
     public ActivityCountEntity queryRaffleActivityCountByActivityCountId(Long activityCountId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.ACTIVITY_COUNT_KEY + activityCountId;
-        ActivityCountEntity activityCountEntity = redisService.getValue(cacheKey);
+
+        ActivityCountEntity activityCountEntity = JSON.to(ActivityCountEntity.class, redisService.getValue(cacheKey));
         if (activityCountEntity != null) {
             return activityCountEntity;
         }
@@ -428,5 +435,30 @@ public class ActivityRepository implements IActivityRepository {
         } finally {
             dbRouter.clear();
         }
+    }
+
+    @Override
+    public List<ActivitySkuEntity> queryActivitySkuListByActivityId(Long activityId) {
+        List<RaffleActivitySku> raffleActivitySkus = raffleActivitySkuDao.queryActivitySkuListByActivityId(activityId);
+        List<ActivitySkuEntity> activitySkuEntities = new ArrayList<>(raffleActivitySkus.size());
+        for (RaffleActivitySku raffleActivitySku:raffleActivitySkus){
+            ActivitySkuEntity activitySkuEntity = new ActivitySkuEntity();
+            activitySkuEntity.setSku(raffleActivitySku.getSku());
+            activitySkuEntity.setActivityCountId(raffleActivitySku.getActivityCountId());
+            activitySkuEntity.setStockCount(raffleActivitySku.getStockCount());
+            activitySkuEntity.setStockCountSurplus(raffleActivitySku.getStockCountSurplus());
+            activitySkuEntities.add(activitySkuEntity);
+        }
+        return activitySkuEntities;
+    }
+
+    @Override
+    public Integer queryRaffleActivityAccountDayPartakeCount(Long activityId, String userId) {
+        RaffleActivityAccountDay raffleActivityAccountDay = new RaffleActivityAccountDay();
+        raffleActivityAccountDay.setUserId(userId);
+        raffleActivityAccountDay.setActivityId(activityId);
+        raffleActivityAccountDay.setDay(raffleActivityAccountDay.currentDay());
+        Integer dayPartakeCount = raffleActivityAccountDayDao.queryRaffleActivityAccountDayPartakeCount(raffleActivityAccountDay);
+        return null == dayPartakeCount ? 0 : dayPartakeCount;
     }
 }

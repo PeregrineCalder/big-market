@@ -7,6 +7,8 @@ import cn.peregrine.types.common.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.domain.strategy.service.rule.tree.impl
@@ -20,9 +22,10 @@ import org.springframework.stereotype.Component;
 @Component("rule_luck_award")
 public class RuleLuckAwardLogicTreeNode implements ILogicTreeNode {
     @Override
-    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId, String ruleValue) {
+    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId, String ruleValue, Date endDateTime) {
         log.info("规则过滤-兜底奖品 userId:{} strategyId:{} awardId:{} ruleValue:{}", userId, strategyId, awardId, ruleValue);
-        String[] split = ruleValue.split(Constants.COLON);
+         String[] split = ruleValue.split(Constants.COLON);
+//        String[] split = ruleValue.split(Constants.SPACE);
         if (split.length == 0) {
             log.error("规则过滤-兜底奖品, 兜底奖品未配置告警 userId:{} strategyId:{} awardId:{}", userId, strategyId, awardId);
             throw new RuntimeException("兜底奖品未配置 " + ruleValue);

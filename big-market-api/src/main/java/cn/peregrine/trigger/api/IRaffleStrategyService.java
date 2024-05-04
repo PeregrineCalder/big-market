@@ -2,8 +2,8 @@ package cn.peregrine.trigger.api;
 
 import cn.peregrine.trigger.api.dto.RaffleAwardListRequestDTO;
 import cn.peregrine.trigger.api.dto.RaffleAwardListResponseDTO;
-import cn.peregrine.trigger.api.dto.RaffleRequestDTO;
-import cn.peregrine.trigger.api.dto.RaffleResponseDTO;
+import cn.peregrine.trigger.api.dto.RaffleStrategyRequestDTO;
+import cn.peregrine.trigger.api.dto.RaffleStrategyResponseDTO;
 import cn.peregrine.types.model.Response;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  * @description: 抽奖服务接口
  * @version: 1.0
  */
-public interface IRaffleService {
+public interface IRaffleStrategyService {
     /**
      * 策略装配接口
      * @param strategyId 策略 ID
@@ -35,5 +35,5 @@ public interface IRaffleService {
      * @param requestDTO 请求参数
      * @return 抽奖结果
      */
-    Response<RaffleResponseDTO> randomRaffle(RaffleRequestDTO requestDTO);
+    Response<RaffleStrategyResponseDTO> randomRaffle(RaffleStrategyRequestDTO requestDTO);
 }

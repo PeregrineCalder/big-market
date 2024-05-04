@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.domain.strategy.model.entity
@@ -23,4 +25,7 @@ public class RaffleFactorEntity {
     private String userId;
     /** 策略ID */
     private Long strategyId;
+    /** 结束时间 */
+    private Date endDateTime;
+
 }

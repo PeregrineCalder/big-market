@@ -34,7 +34,7 @@ public class RedisClientConfig {
     public RedissonClient redissonClient(ConfigurableApplicationContext applicationContext, RedisClientConfigProperties properties) {
         Config config = new Config();
         // 根据需要可以设定编解码器
-        // config.setCodec(new RedisCodec());
+        config.setCodec(new RedisCodec());
 
         config.useSingleServer()
                 .setAddress("redis://" + properties.getHost() + ":" + properties.getPort())

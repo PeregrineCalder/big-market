@@ -1,13 +1,14 @@
 package cn.peregrine.domain.strategy.service.rule.tree.impl;
 
 import cn.peregrine.domain.strategy.model.valobj.RuleLogicCheckTypeVO;
-import cn.peregrine.domain.strategy.service.armory.IStrategyDispatch;
+import cn.peregrine.domain.strategy.repository.IStrategyRepository;
 import cn.peregrine.domain.strategy.service.rule.tree.ILogicTreeNode;
 import cn.peregrine.domain.strategy.service.rule.tree.factory.DefaultTreeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @projectName: big-market
@@ -22,9 +23,11 @@ import javax.annotation.Resource;
 @Component("rule_lock")
 public class RuleLockLogicTreeNode implements ILogicTreeNode {
     // 用户抽奖次数
-    private Long userRaffleCount = 10L;
+    @Resource
+    private IStrategyRepository repository;
+
     @Override
-    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId, String ruleValue) {
+    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId, String ruleValue, Date endDateTime) {
         log.info("规则过滤-次数锁 userId:{} strategyId:{} awardId:{}", userId, strategyId, awardId);
         long raffleCount = 0L;
         try {
@@ -32,6 +35,8 @@ public class RuleLockLogicTreeNode implements ILogicTreeNode {
         } catch (Exception e) {
             throw new RuntimeException("规则过滤-次数锁异常 ruleValue: " + ruleValue + " 配置不正确");
         }
+        // 查询用户抽奖次数 - 当天的; 策略ID:活动ID 1:1 的配置, 可以直接用 strategyId 查询
+        Integer userRaffleCount = repository.queryTodayUserRaffleCount(userId, strategyId);
         // 用户抽奖次数大于规则限定值, 规则放行
         if (userRaffleCount >= raffleCount) {
             return DefaultTreeFactory.TreeActionEntity.builder()

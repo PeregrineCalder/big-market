@@ -5,16 +5,21 @@ import lombok.Data;
 /**
  * @projectName: big-market
  * @package: cn.peregrine.trigger.api.dto
- * @className: RaffleAwardListRequestDTO
+ * @className: ActivityDrawRequestDTO
  * @author: Peregrine Calder
- * @description: 抽奖奖品列表, 请求对象
- * @date: 2024/4/18 17:55
+ * @description: 活动抽奖请求对象
+ * @date: 2024/5/2 15:59
  * @version: 1.0
  */
 @Data
-public class RaffleAwardListRequestDTO {
-    // 用户ID
+public class ActivityDrawRequestDTO {
+    /**
+     * 用户ID
+     */
     private String userId;
-    // 抽奖活动ID
+
+    /**
+     * 活动ID
+     */
     private Long activityId;
 }

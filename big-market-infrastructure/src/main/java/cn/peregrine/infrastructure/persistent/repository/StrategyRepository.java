@@ -10,16 +10,15 @@ import cn.peregrine.infrastructure.persistent.po.*;
 import cn.peregrine.infrastructure.persistent.redis.IRedisService;
 import cn.peregrine.types.common.Constants;
 import cn.peregrine.types.exception.AppException;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static cn.peregrine.types.enums.ResponseCode.UN_ASSEMBLED_STRATEGY_ARMORY;
@@ -37,6 +36,10 @@ import static cn.peregrine.types.enums.ResponseCode.UN_ASSEMBLED_STRATEGY_ARMORY
 @Repository
 public class StrategyRepository implements IStrategyRepository {
     @Resource
+    private IRaffleActivityDao raffleActivityDao;
+    @Resource
+    private IRaffleActivityAccountDayDao raffleActivityAccountDayDao;
+    @Resource
     private IStrategyDao strategyDao;
     @Resource
     private IStrategyRuleDao strategyRuleDao;
@@ -53,25 +56,28 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId) {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_LIST_KEY + strategyId;
-        List<StrategyAwardEntity> strategyAwardEntities = redisService.getValue(cacheKey);
-        if (strategyAwardEntities == null || strategyAwardEntities.isEmpty()) {
-            List<StrategyAward> strategyAwards = strategyAwardDao.queryStrategyAwardListByStrategyId(strategyId);
-            strategyAwardEntities = new ArrayList<>(strategyAwards.size());
-            for (StrategyAward strategyAward : strategyAwards) {
-                StrategyAwardEntity strategyAwardEntity = StrategyAwardEntity.builder()
-                        .strategyId(strategyAward.getStrategyId())
-                        .awardId(strategyAward.getAwardId())
-                        .awardTitle(strategyAward.getAwardTitle())
-                        .awardSubtitle(strategyAward.getAwardSubtitle())
-                        .awardCount(strategyAward.getAwardCount())
-                        .awardCountSurplus(strategyAward.getAwardCountSurplus())
-                        .awardRate(strategyAward.getAwardRate())
-                        .sort(strategyAward.getSort())
-                        .build();
-                strategyAwardEntities.add(strategyAwardEntity);
-            }
-            redisService.setValue(cacheKey, strategyAwardEntities);
+//        List<StrategyAwardEntity> strategyAwardEntities = redisService.getValue(cacheKey);
+        if (redisService.isExists(cacheKey)) {
+            JSON.parseArray(JSON.toJSONString(redisService.getValue(cacheKey)), StrategyAwardEntity.class);
         }
+        List<StrategyAwardEntity> strategyAwardEntities;
+        List<StrategyAward> strategyAwards = strategyAwardDao.queryStrategyAwardListByStrategyId(strategyId);
+        strategyAwardEntities = new ArrayList<>(strategyAwards.size());
+        for (StrategyAward strategyAward : strategyAwards) {
+            StrategyAwardEntity strategyAwardEntity = StrategyAwardEntity.builder()
+                    .strategyId(strategyAward.getStrategyId())
+                    .awardId(strategyAward.getAwardId())
+                    .awardTitle(strategyAward.getAwardTitle())
+                    .awardSubtitle(strategyAward.getAwardSubtitle())
+                    .awardCount(strategyAward.getAwardCount())
+                    .awardCountSurplus(strategyAward.getAwardCountSurplus())
+                    .awardRate(strategyAward.getAwardRate())
+                    .ruleModels(strategyAward.getRuleModels())
+                    .sort(strategyAward.getSort())
+                    .build();
+            strategyAwardEntities.add(strategyAwardEntity);
+        }
+        redisService.setValue(cacheKey, strategyAwardEntities);
         return strategyAwardEntities;
     }
 
@@ -111,10 +117,10 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public StrategyEntity queryStrategyEntityByStrategyId(Long strategyId) {
         String cacheKey = Constants.RedisKey.STRATEGY_KEY + strategyId;
-        StrategyEntity strategyEntity = redisService.getValue(cacheKey);
-        if (strategyEntity != null) {
-            return strategyEntity;
+        if (redisService.isExists(cacheKey)) {
+            return JSON.to(StrategyEntity.class, redisService.getValue(cacheKey));
         }
+        StrategyEntity strategyEntity;
         Strategy strategy = strategyDao.queryStrategyByStrategyId(strategyId);
         strategyEntity = StrategyEntity.builder()
                 .strategyId(strategy.getStrategyId())
@@ -171,9 +177,10 @@ public class StrategyRepository implements IStrategyRepository {
     public RuleTreeVO queryRuleTreeVOByTreeId(String treeId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.RULE_TREE_VO_KEY + treeId;
-        RuleTreeVO ruleTreeVOCache = redisService.getValue(cacheKey);
-        if (null != ruleTreeVOCache) {
-            return ruleTreeVOCache;
+        if (redisService.isExists(cacheKey)) {
+            log.info("class:{}", redisService.getValue(cacheKey).getClass());
+            return JSON.to(RuleTreeVO.class, redisService.getValue(cacheKey));
+//            return JSON.to(RuleTreeVO.class, redisService.getValue(cacheKey));
         }
         // 从数据库获取
         RuleTree ruleTree = ruleTreeDao.queryRuleTreeByTreeId(treeId);
@@ -224,6 +231,11 @@ public class StrategyRepository implements IStrategyRepository {
 
     @Override
     public Boolean subtractionAwardStock(String cacheKey) {
+        return subtractionAwardStock(cacheKey, null);
+    }
+
+    @Override
+    public Boolean subtractionAwardStock(String cacheKey, Date endDateTime) {
         long surplus = redisService.decr(cacheKey);
         if (surplus < 0) {
             // 库存小于0，恢复为0个
@@ -233,7 +245,13 @@ public class StrategyRepository implements IStrategyRepository {
         // 按照cacheKey decr 后的值，如 99、98、97 和 key 组成为库存锁的key进行使用
         // 加锁为了兜底，如果后续有恢复库存，手动处理等，也不会超卖。因为所有的可用库存key，都被加锁了。
         String lockKey = cacheKey + Constants.UNDERLINE + surplus;
-        Boolean lock = redisService.setNx(lockKey);
+        Boolean lock;
+        if (null != endDateTime) {
+            long expireMillis = endDateTime.getTime() - System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+            lock = redisService.setNx(lockKey, expireMillis, TimeUnit.MILLISECONDS);
+        } else {
+            lock = redisService.setNx(lockKey);
+        }
         if (!lock) {
             log.info("策略奖品库存加锁失败 {}", lockKey);
         }
@@ -251,8 +269,19 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public StrategyAwardStockKeyVO takeQueueValue() throws InterruptedException {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_QUEUE_KEY;
-        RBlockingQueue<StrategyAwardStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
-        return destinationQueue.poll();
+        RBlockingQueue<com.alibaba.fastjson.JSONObject> destinationQueue = redisService.getBlockingQueue(cacheKey);
+        // 从队列中获取JSONObject对象
+        com.alibaba.fastjson.JSONObject jsonObject = destinationQueue.poll();
+        StrategyAwardStockKeyVO strategyAwardStockKeyVO = new StrategyAwardStockKeyVO();
+        if (null != jsonObject) {
+            Long strategyId = jsonObject.getLong("strategyId");
+            Integer awardId = jsonObject.getInteger("awardId");
+            strategyAwardStockKeyVO.setStrategyId(strategyId);
+            strategyAwardStockKeyVO.setAwardId(awardId);
+        }
+        return strategyAwardStockKeyVO;
+//        RBlockingQueue<StrategyAwardStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
+//        return destinationQueue.poll();
     }
 
     @Override
@@ -267,10 +296,10 @@ public class StrategyRepository implements IStrategyRepository {
     public StrategyAwardEntity queryStrategyAwardEntity(Long strategyId, Integer awardId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_KEY + strategyId + awardId;
-        StrategyAwardEntity strategyAwardEntity = redisService.getValue(cacheKey);
-        if (strategyAwardEntity != null) {
-            return strategyAwardEntity;
+        if (redisService.isExists(cacheKey)) {
+            return JSON.to(StrategyAwardEntity.class, redisService.getValue(cacheKey).toString());
         }
+        StrategyAwardEntity strategyAwardEntity;
         StrategyAward strategyAwardReq = new StrategyAward();
         strategyAwardReq.setStrategyId(strategyId);
         strategyAwardReq.setAwardId(awardId);
@@ -289,5 +318,43 @@ public class StrategyRepository implements IStrategyRepository {
         redisService.setValue(cacheKey, strategyAwardEntity);
         // 返回数据
         return strategyAwardEntity;
+    }
+
+
+    @Override
+    public Long queryStrategyIdByActivityId(Long activityId) {
+        return raffleActivityDao.queryStrategyIdByActivityId(activityId);
+    }
+
+    @Override
+    public Integer queryTodayUserRaffleCount(String userId, Long strategyId) {
+        // 活动ID
+        Long activityId = raffleActivityDao.queryActivityIdByStrategyId(strategyId);
+        // 封装参数
+        RaffleActivityAccountDay raffleActivityAccountDayReq = new RaffleActivityAccountDay();
+        raffleActivityAccountDayReq.setUserId(userId);
+        raffleActivityAccountDayReq.setActivityId(activityId);
+        raffleActivityAccountDayReq.setDay(raffleActivityAccountDayReq.currentDay());
+        RaffleActivityAccountDay raffleActivityAccountDay = raffleActivityAccountDayDao.queryActivityAccountDayByUserId(raffleActivityAccountDayReq);
+        if (null == raffleActivityAccountDay) {
+            return 0;
+        }
+        // 总次数 - 剩余的, 等于今日参与的
+        return raffleActivityAccountDay.getDayCount() - raffleActivityAccountDay.getDayCountSurplus();
+    }
+
+    @Override
+    public Map<String, Integer> queryAwardRuleLockCount(String[] treeIds) {
+        if (null == treeIds || treeIds.length == 0) {
+            return new HashMap<>();
+        }
+        List<RuleTreeNode> ruleTreeNodes = ruleTreeNodeDao.queryRuleLocks(treeIds);
+        Map<String, Integer> resultMap = new HashMap<>();
+        for (RuleTreeNode ruleTreeNode : ruleTreeNodes) {
+            String treeId = ruleTreeNode.getTreeId();
+            Integer ruleValue = Integer.valueOf(ruleTreeNode.getRuleValue());
+            resultMap.put(treeId, ruleValue);
+        }
+        return resultMap;
     }
 }

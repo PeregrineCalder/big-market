@@ -6,6 +6,7 @@ import cn.peregrine.domain.activity.model.entity.*;
 import cn.peregrine.domain.activity.model.valobj.ActivitySkuStockKeyVO;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description 活动仓储接口
@@ -27,4 +28,7 @@ public interface IActivityRepository {
     ActivityAccountMonthEntity queryActivityAccountMonthByUserId(String userId, Long activityId, String month);
     ActivityAccountDayEntity queryActivityAccountDayByUserId(String userId, Long activityId, String day);
     void saveCreatePartakeOrderAggregate(CreatePartakeOrderAggregate createPartakeOrderAggregate);
+    List<ActivitySkuEntity> queryActivitySkuListByActivityId(Long activityId);
+    Integer queryRaffleActivityAccountDayPartakeCount(Long activityId, String userId);
+
 }

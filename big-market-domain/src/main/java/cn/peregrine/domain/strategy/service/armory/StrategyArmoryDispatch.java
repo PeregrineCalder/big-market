@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.SecureRandom;
-import java.sql.Array;
 import java.util.*;
 
 /**
@@ -34,10 +33,11 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
     public boolean assembleLotteryStrategy(Long strategyId) {
         // 查询策略配置
         List<StrategyAwardEntity> strategyAwardEntities = repository.queryStrategyAwardList(strategyId);
+//        List<StrategyAwardEntity> strategyAwardEntities = JSON.parseArray(JSON.toJSONString(repository.queryStrategyAwardList(strategyId)), StrategyAwardEntity.class);
         // 缓存奖品库存[用于 decr 扣减库存使用]
         for (StrategyAwardEntity strategyAward : strategyAwardEntities) {
             Integer awardId = strategyAward.getAwardId();
-            Integer awardCount = strategyAward.getAwardCount();
+            Integer awardCount = strategyAward.getAwardCountSurplus();
             cacheStrategyAwardCount(strategyId, awardId, awardCount);
         }
         // 默认装配配置[全量抽奖概率]
@@ -60,6 +60,12 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
             assembleLotteryStrategy(String.valueOf(strategyId).concat("_").concat(key), strategyAwardEntitiesClone);
         }
         return true;
+    }
+
+    @Override
+    public boolean assembleLotteryStrategyByActivityId(Long activityId) {
+        Long strategyId = repository.queryStrategyIdByActivityId(activityId);
+        return assembleLotteryStrategy(strategyId);
     }
 
     private void cacheStrategyAwardCount(Long strategyId, Integer awardId, Integer awardCount) {
@@ -117,8 +123,8 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
     }
 
     @Override
-    public Boolean subtractionAwardStock(Long strategyId, Integer awardId) {
+    public Boolean subtractionAwardStock(Long strategyId, Integer awardId, Date endDateTime) {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_KEY + strategyId + Constants.UNDERLINE + awardId;
-        return repository.subtractionAwardStock(cacheKey);
+        return repository.subtractionAwardStock(cacheKey, endDateTime);
     }
 }
