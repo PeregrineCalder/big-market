@@ -16,8 +16,6 @@ import cn.peregrine.domain.strategy.service.rule.tree.factory.DefaultTreeFactory
 import cn.peregrine.domain.strategy.service.rule.tree.factory.engine.IDecisionTreeEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

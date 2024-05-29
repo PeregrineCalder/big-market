@@ -10,8 +10,10 @@ import cn.peregrine.infrastructure.persistent.po.*;
 import cn.peregrine.infrastructure.persistent.redis.IRedisService;
 import cn.peregrine.types.common.Constants;
 import cn.peregrine.types.exception.AppException;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
@@ -56,13 +58,18 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId) {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_LIST_KEY + strategyId;
-//        List<StrategyAwardEntity> strategyAwardEntities = redisService.getValue(cacheKey);
-        if (redisService.isExists(cacheKey)) {
-            JSON.parseArray(JSON.toJSONString(redisService.getValue(cacheKey)), StrategyAwardEntity.class);
+        JSONArray jsonArray = redisService.getValue(cacheKey);  // 从Redis获取的值是JSONArray类型
+        if (jsonArray != null && !jsonArray.isEmpty()) {
+            // 使用Fastjson将JSONArray转换为List<StrategyAwardEntity>
+            List<StrategyAwardEntity> strategyAwardEntities = JSON.parseObject(jsonArray.toJSONString(), new TypeReference<List<StrategyAwardEntity>>() {});
+            if (strategyAwardEntities != null && !strategyAwardEntities.isEmpty()) {
+                return strategyAwardEntities;
+            }
         }
-        List<StrategyAwardEntity> strategyAwardEntities;
+//        List<StrategyAwardEntity> strategyAwardEntities = redisService.getValue(cacheKey);
+//        if (strategyAwardEntities != null && !strategyAwardEntities.isEmpty()) {return strategyAwardEntities;}
         List<StrategyAward> strategyAwards = strategyAwardDao.queryStrategyAwardListByStrategyId(strategyId);
-        strategyAwardEntities = new ArrayList<>(strategyAwards.size());
+        List<StrategyAwardEntity> strategyAwardEntities = new ArrayList<>(strategyAwards.size());
         for (StrategyAward strategyAward : strategyAwards) {
             StrategyAwardEntity strategyAwardEntity = StrategyAwardEntity.builder()
                     .strategyId(strategyAward.getStrategyId())
@@ -117,12 +124,19 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public StrategyEntity queryStrategyEntityByStrategyId(Long strategyId) {
         String cacheKey = Constants.RedisKey.STRATEGY_KEY + strategyId;
-        if (redisService.isExists(cacheKey)) {
-            return JSON.to(StrategyEntity.class, redisService.getValue(cacheKey));
+        Object cacheValue = redisService.getValue(cacheKey);
+        if (cacheValue != null) {
+            // 将缓存的值转换为JSON字符串
+            String jsonString = JSON.toJSONString(cacheValue);
+            // 使用Fastjson将字符串转换为StrategyEntity对象
+            StrategyEntity strategyEntity = JSON.parseObject(jsonString, StrategyEntity.class);
+            if (strategyEntity != null) {
+                return strategyEntity;
+            }
         }
-        StrategyEntity strategyEntity;
         Strategy strategy = strategyDao.queryStrategyByStrategyId(strategyId);
-        strategyEntity = StrategyEntity.builder()
+        if (null == strategy) return StrategyEntity.builder().build();
+        StrategyEntity strategyEntity = StrategyEntity.builder()
                 .strategyId(strategy.getStrategyId())
                 .strategyDesc(strategy.getStrategyDesc())
                 .ruleModels(strategy.getRuleModels())
@@ -177,10 +191,13 @@ public class StrategyRepository implements IStrategyRepository {
     public RuleTreeVO queryRuleTreeVOByTreeId(String treeId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.RULE_TREE_VO_KEY + treeId;
-        if (redisService.isExists(cacheKey)) {
-            log.info("class:{}", redisService.getValue(cacheKey).getClass());
-            return JSON.to(RuleTreeVO.class, redisService.getValue(cacheKey));
-//            return JSON.to(RuleTreeVO.class, redisService.getValue(cacheKey));
+        String cacheValue = redisService.getValue(cacheKey);
+        if (cacheValue != null) {
+            // 使用TypeReference将JSON字符串转换为RuleTreeVO对象
+            RuleTreeVO ruleTreeVOCache = JSON.parseObject(cacheValue, new TypeReference<RuleTreeVO>() {});
+            if (ruleTreeVOCache != null) {
+                return ruleTreeVOCache;
+            }
         }
         // 从数据库获取
         RuleTree ruleTree = ruleTreeDao.queryRuleTreeByTreeId(treeId);
@@ -219,7 +236,7 @@ public class StrategyRepository implements IStrategyRepository {
                 .treeRootRuleNode(ruleTree.getTreeRootRuleKey())
                 .treeNodeMap(treeNodeMap)
                 .build();
-        redisService.setValue(cacheKey, ruleTreeVODB);
+        redisService.setValue(cacheKey, JSON.toJSONString(ruleTreeVODB));
         return ruleTreeVODB;
     }
 
@@ -261,27 +278,21 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public void awardStockConsumeSendQueue(StrategyAwardStockKeyVO strategyAwardStockKeyVO) {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_QUEUE_KEY;
-        RBlockingQueue<StrategyAwardStockKeyVO> blockingDeque = redisService.getBlockingQueue(cacheKey);
-        RDelayedQueue<StrategyAwardStockKeyVO> delayedQueue = redisService.getDelayedQueue(blockingDeque);
-        delayedQueue.offer(strategyAwardStockKeyVO, 3, TimeUnit.SECONDS);
+        RBlockingQueue<String> blockingDeque = redisService.getBlockingQueue(cacheKey);
+        RDelayedQueue<String> delayedQueue = redisService.getDelayedQueue(blockingDeque);
+        String jsonValue = JSON.toJSONString(strategyAwardStockKeyVO);
+        delayedQueue.offer(jsonValue, 3, TimeUnit.SECONDS);
     }
 
     @Override
     public StrategyAwardStockKeyVO takeQueueValue() throws InterruptedException {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_QUEUE_KEY;
-        RBlockingQueue<com.alibaba.fastjson.JSONObject> destinationQueue = redisService.getBlockingQueue(cacheKey);
-        // 从队列中获取JSONObject对象
-        com.alibaba.fastjson.JSONObject jsonObject = destinationQueue.poll();
-        StrategyAwardStockKeyVO strategyAwardStockKeyVO = new StrategyAwardStockKeyVO();
-        if (null != jsonObject) {
-            Long strategyId = jsonObject.getLong("strategyId");
-            Integer awardId = jsonObject.getInteger("awardId");
-            strategyAwardStockKeyVO.setStrategyId(strategyId);
-            strategyAwardStockKeyVO.setAwardId(awardId);
+        RBlockingQueue<String> destinationQueue = redisService.getBlockingQueue(cacheKey);
+        String jsonValue = destinationQueue.poll();
+        if (jsonValue != null) {
+            return JSON.parseObject(jsonValue, StrategyAwardStockKeyVO.class);
         }
-        return strategyAwardStockKeyVO;
-//        RBlockingQueue<StrategyAwardStockKeyVO> destinationQueue = redisService.getBlockingQueue(cacheKey);
-//        return destinationQueue.poll();
+        return null;
     }
 
     @Override
@@ -296,15 +307,28 @@ public class StrategyRepository implements IStrategyRepository {
     public StrategyAwardEntity queryStrategyAwardEntity(Long strategyId, Integer awardId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_KEY + strategyId + awardId;
-        if (redisService.isExists(cacheKey)) {
-            return JSON.to(StrategyAwardEntity.class, redisService.getValue(cacheKey).toString());
+        Object cacheValue = redisService.getValue(cacheKey);
+        if (cacheValue != null) {
+            if (cacheValue instanceof String) {
+                // 使用TypeReference将JSON字符串转换为StrategyAwardEntity对象
+                StrategyAwardEntity strategyAwardEntityCache = JSON.parseObject((String) cacheValue, new TypeReference<StrategyAwardEntity>() {});
+                if (strategyAwardEntityCache != null) {
+                    return strategyAwardEntityCache;
+                }
+            } else if (cacheValue instanceof JSONObject) {
+                // 如果是JSONObject，将其转换为字符串再解析
+                StrategyAwardEntity strategyAwardEntityCache = ((JSONObject) cacheValue).toJavaObject(StrategyAwardEntity.class);
+                if (strategyAwardEntityCache != null) {
+                    return strategyAwardEntityCache;
+                }
+            }
         }
-        StrategyAwardEntity strategyAwardEntity;
+
         StrategyAward strategyAwardReq = new StrategyAward();
         strategyAwardReq.setStrategyId(strategyId);
         strategyAwardReq.setAwardId(awardId);
         StrategyAward strategyAwardRes = strategyAwardDao.queryStrategyAward(strategyAwardReq);
-        strategyAwardEntity = StrategyAwardEntity.builder()
+        StrategyAwardEntity strategyAwardEntity = StrategyAwardEntity.builder()
                 .strategyId(strategyAwardRes.getStrategyId())
                 .awardId(strategyAwardRes.getAwardId())
                 .awardTitle(strategyAwardRes.getAwardTitle())

@@ -16,7 +16,7 @@ import cn.peregrine.infrastructure.persistent.redis.IRedisService;
 import cn.peregrine.types.common.Constants;
 import cn.peregrine.types.enums.ResponseCode;
 import cn.peregrine.types.exception.AppException;
-import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
@@ -90,15 +90,19 @@ public class ActivityRepository implements IActivityRepository {
     public ActivityEntity queryRaffleActivityByActivityId(Long activityId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.ACTIVITY_KEY + activityId;
-//        ActivityEntity activityEntity = redisService.getValue(cacheKey);
-
-        ActivityEntity activityEntity = JSON.to(ActivityEntity.class, redisService.getValue(cacheKey));
-        if (activityEntity != null) {
-            return activityEntity;
+        Object cacheValue = redisService.getValue(cacheKey);
+        if (cacheValue != null) {
+            // 将缓存的值转换为JSON字符串
+            String jsonString = JSON.toJSONString(cacheValue);
+            // 使用Fastjson将字符串转换为ActivityEntity对象
+            ActivityEntity activityEntity = JSON.parseObject(jsonString, ActivityEntity.class);
+            if (activityEntity != null) {
+                return activityEntity;
+            }
         }
         // 从库中获取数据
         RaffleActivity raffleActivity = raffleActivityDao.queryRaffleActivityByActivityId(activityId);
-        activityEntity = ActivityEntity.builder()
+        ActivityEntity activityEntity = ActivityEntity.builder()
                 .activityId(raffleActivity.getActivityId())
                 .activityName(raffleActivity.getActivityName())
                 .activityDesc(raffleActivity.getActivityDesc())
@@ -115,8 +119,7 @@ public class ActivityRepository implements IActivityRepository {
     public ActivityCountEntity queryRaffleActivityCountByActivityCountId(Long activityCountId) {
         // 优先从缓存获取
         String cacheKey = Constants.RedisKey.ACTIVITY_COUNT_KEY + activityCountId;
-
-        ActivityCountEntity activityCountEntity = JSON.to(ActivityCountEntity.class, redisService.getValue(cacheKey));
+        ActivityCountEntity activityCountEntity = redisService.getValue(cacheKey);
         if (activityCountEntity != null) {
             return activityCountEntity;
         }
@@ -202,7 +205,6 @@ public class ActivityRepository implements IActivityRepository {
         if (surplus == 0) {
             // 库存消耗没了以后, 发送MQ消息, 更新数据库库存
             eventPublisher.publish(activitySkuStockZeroMessageEvent.topic(), activitySkuStockZeroMessageEvent.buildEventMessage(sku));
-            return false;
         } else if (surplus < 0) {
             // 库存小于0, 恢复为0个
             redisService.setAtomicLong(cacheKey, 0);

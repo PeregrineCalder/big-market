@@ -100,9 +100,7 @@ public class RaffleStrategyController implements IRaffleStrategyService {
             }
 
             // 查询奖品配置
-            List<StrategyAwardEntity> strategyAwardEntities = JSON.parseArray(JSON.toJSONString(raffleAward.queryRaffleStrategyAwardListByActivityId(request.getActivityId())), StrategyAwardEntity.class);
-//            List<StrategyAwardEntity> strategyAwardEntities = JSON.parseArray(JSON.toJSONString(raffleAward.queryRaffleStrategyAwardListByActivityId(request.getActivityId())), StrategyAwardEntity.class);
-
+            List<StrategyAwardEntity> strategyAwardEntities = raffleAward.queryRaffleStrategyAwardListByActivityId(request.getActivityId());
             // 获取规则配置
             String[] treeIds = strategyAwardEntities.stream()
                     .map(StrategyAwardEntity::getRuleModels)

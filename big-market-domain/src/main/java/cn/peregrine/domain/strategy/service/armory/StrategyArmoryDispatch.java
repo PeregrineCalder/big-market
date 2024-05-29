@@ -33,7 +33,6 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
     public boolean assembleLotteryStrategy(Long strategyId) {
         // 查询策略配置
         List<StrategyAwardEntity> strategyAwardEntities = repository.queryStrategyAwardList(strategyId);
-//        List<StrategyAwardEntity> strategyAwardEntities = JSON.parseArray(JSON.toJSONString(repository.queryStrategyAwardList(strategyId)), StrategyAwardEntity.class);
         // 缓存奖品库存[用于 decr 扣减库存使用]
         for (StrategyAwardEntity strategyAward : strategyAwardEntities) {
             Integer awardId = strategyAward.getAwardId();

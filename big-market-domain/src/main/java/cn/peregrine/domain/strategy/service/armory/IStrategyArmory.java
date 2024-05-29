@@ -1,8 +1,5 @@
 package cn.peregrine.domain.strategy.service.armory;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 /**
  * @author: Peregrine Calder
  * @description: 策略装配库，负责初始化策略计算
