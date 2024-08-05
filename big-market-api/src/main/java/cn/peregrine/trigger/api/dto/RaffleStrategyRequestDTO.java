@@ -9,7 +9,7 @@ import lombok.Data;
  * @author: Peregrine Calder
  * @description: 抽奖请求参数
  * @date: 2024/4/18 17:59
- * @version: 1.0
+ * @version: 2.0
  */
 @Data
 public class RaffleStrategyRequestDTO {
