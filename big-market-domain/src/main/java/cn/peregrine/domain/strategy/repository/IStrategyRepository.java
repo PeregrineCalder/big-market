@@ -115,4 +115,13 @@ public interface IStrategyRepository {
      * @return key 规则树, value rule_lock 加锁值
      */
     Map<String, Integer> queryAwardRuleLockCount(String[] treeIds);
+
+    /**
+     * 根据用户ID、策略ID，查询用户活动账户总使用量
+     *
+     * @param userId     用户ID
+     * @param strategyId 策略ID
+     * @return 使用总量
+     */
+    Integer queryActivityAccountTotalUseCount(String userId, Long strategyId);
 }

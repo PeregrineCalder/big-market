@@ -28,8 +28,6 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
     private IStrategyRepository repository;
     @Resource
     private IStrategyDispatch strategyDispatch;
-    // 根据用户ID查询用户抽奖消耗的积分值
-    public Long userScore = 0L;
     /**
      * 权重责任链过滤；
      * 1. 权重规则格式 - 4000:102,103,104,105 5000:102,103,104,105,106,107 6000:102,103,104,105,106,107,108,109
@@ -39,14 +37,20 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
     public DefaultChainFactory.StrategyAwardVO logic(String userId, Long strategyId) {
         log.info("抽奖责任链-权重开始 userId: {} strategyId: {} ruleModel: {}", userId, strategyId, ruleModel());
         String ruleValue = repository.queryStrategyRuleValue(strategyId, ruleModel());
+
         // 根据用户ID查询用户抽奖消耗的积分值
         Map<Long, String> analyticalValueGroup = getAnalyticalValue(ruleValue);
         if (analyticalValueGroup == null || analyticalValueGroup.isEmpty()) {
             return null;
         }
+
         // 转换Keys值，并默认排序
         List<Long> analyticalSortedKeys = new ArrayList<>(analyticalValueGroup.keySet());
         Collections.sort(analyticalSortedKeys);
+
+        // 根据用户ID查询用户抽奖消耗的积分值
+        Integer userScore = repository.queryActivityAccountTotalUseCount(userId, strategyId);
+
         // 找出最后一个符合的值
         Long nextValue = analyticalSortedKeys.stream()
                 .sorted(Comparator.reverseOrder())
