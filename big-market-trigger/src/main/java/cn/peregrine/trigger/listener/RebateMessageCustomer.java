@@ -22,7 +22,7 @@ import javax.annotation.Resource;
  * @package: cn.peregrine.trigger.listener
  * @className: RebateMessageCustomer
  * @author: Peregrine Calder
- * @description: TODO
+ * @description: 监听；行为返利消息
  * @date: 2024/8/27 22:03
  * @version: 1.0
  */

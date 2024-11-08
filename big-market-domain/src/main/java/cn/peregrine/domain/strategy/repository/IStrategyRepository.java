@@ -4,6 +4,7 @@ import cn.peregrine.domain.strategy.model.entity.StrategyAwardEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyEntity;
 import cn.peregrine.domain.strategy.model.entity.StrategyRuleEntity;
 import cn.peregrine.domain.strategy.model.valobj.RuleTreeVO;
+import cn.peregrine.domain.strategy.model.valobj.RuleWeightVO;
 import cn.peregrine.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import cn.peregrine.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
 
@@ -124,4 +125,12 @@ public interface IStrategyRepository {
      * @return 使用总量
      */
     Integer queryActivityAccountTotalUseCount(String userId, Long strategyId);
+
+    /**
+     * 查询奖品权重配置
+     *
+     * @param strategyId 策略ID
+     * @return 权重规则
+     */
+    List<RuleWeightVO> queryAwardRuleWeight(Long strategyId);
 }
