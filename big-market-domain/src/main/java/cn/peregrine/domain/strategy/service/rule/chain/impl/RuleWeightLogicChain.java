@@ -41,7 +41,8 @@ public class RuleWeightLogicChain extends AbstractLogicChain {
         // 根据用户ID查询用户抽奖消耗的积分值
         Map<Long, String> analyticalValueGroup = getAnalyticalValue(ruleValue);
         if (analyticalValueGroup == null || analyticalValueGroup.isEmpty()) {
-            return null;
+            log.warn("抽奖责任链-权重告警【策略配置权重，但ruleValue未配置相应值】 userId:{} strategyId:{} ruleModel:{}", userId, strategyId, ruleModel());
+            return next().logic(userId, strategyId);
         }
 
         // 转换Keys值，并默认排序
