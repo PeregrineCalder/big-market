@@ -1,6 +1,7 @@
 package cn.peregrine.trigger.listener;
 
 import cn.peregrine.domain.activity.model.entity.SkuRechargeEntity;
+import cn.peregrine.domain.activity.model.valobj.OrderTradeTypeVO;
 import cn.peregrine.domain.activity.service.IRaffleActivityAccountQuotaService;
 import cn.peregrine.domain.credit.model.entity.TradeEntity;
 import cn.peregrine.domain.credit.model.valobj.TradeNameVO;
@@ -55,6 +56,7 @@ public class RebateMessageCustomer {
                     skuRechargeEntity.setUserId(rebateMessage.getUserId());
                     skuRechargeEntity.setSku(Long.valueOf(rebateMessage.getRebateConfig()));
                     skuRechargeEntity.setOutBusinessNo(rebateMessage.getBizId());
+                    skuRechargeEntity.setOrderTradeType(OrderTradeTypeVO.rebate_no_pay_trade);
                     raffleActivityAccountQuotaService.createOrder(skuRechargeEntity);
                     break;
                 case "integral":

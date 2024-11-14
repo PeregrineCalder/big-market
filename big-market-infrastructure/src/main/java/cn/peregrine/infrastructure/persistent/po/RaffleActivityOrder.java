@@ -2,6 +2,7 @@ package cn.peregrine.infrastructure.persistent.po;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -15,6 +16,7 @@ import java.util.Date;
  */
 @Data
 public class RaffleActivityOrder {
+
     /**
      * 自增ID
      */
@@ -71,7 +73,12 @@ public class RaffleActivityOrder {
     private Integer monthCount;
 
     /**
-     * 订单状态（not_used、used、expire）
+     * 支付金额【积分】
+     */
+    private BigDecimal payAmount;
+
+    /**
+     * 订单状态
      */
     private String state;
 
@@ -91,3 +98,4 @@ public class RaffleActivityOrder {
     private Date updateTime;
 
 }
+
