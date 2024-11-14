@@ -1,6 +1,10 @@
 package cn.peregrine.domain.activity.model.entity;
 
+import cn.peregrine.domain.activity.model.valobj.OrderTradeTypeVO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @projectName: big-market
@@ -11,7 +15,10 @@ import lombok.Data;
  * @date: 2024/4/26 22:45
  * @version: 1.0
  */
+@Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SkuRechargeEntity {
     /** 用户ID */
     private String userId;
@@ -19,4 +26,7 @@ public class SkuRechargeEntity {
     private Long sku;
     /** 幂等业务单号，外部谁充值谁透传，这样来保证幂等（多次调用也能确保结果唯一，不会多次充值） */
     private String outBusinessNo;
+
+    private OrderTradeTypeVO orderTradeType = OrderTradeTypeVO.rebate_no_pay_trade;
+
 }

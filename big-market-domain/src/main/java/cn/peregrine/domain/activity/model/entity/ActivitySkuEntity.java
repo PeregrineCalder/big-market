@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.domain.activity.model.entity
@@ -29,5 +31,8 @@ public class ActivitySkuEntity {
     private Integer stockCount;
     /** 剩余库存 */
     private Integer stockCountSurplus;
+    /** 商品金额【积分】 */
+    private BigDecimal productAmount;
+
 
 }

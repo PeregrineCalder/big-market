@@ -1,26 +1,20 @@
-package cn.peregrine.infrastructure.persistent.po;
+package cn.peregrine.trigger.api.dto;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * @projectName: big-market
- * @package: cn.peregrine.infrastructure.persistent.po
- * @className: RaffleActivitySku
+ * @package: cn.peregrine.trigger.api.dto
+ * @className: SkuProductResponseDTO
  * @author: Peregrine Calder
- * @description: 抽奖活动sku持久化对象
- * @date: 2024/4/25 22:41
+ * @description: sku商品对象
  * @version: 1.0
  */
 @Data
-public class RaffleActivitySku {
+public class SkuProductResponseDTO {
 
-    /**
-     * 自增ID
-     */
-    private Long id;
     /**
      * 商品sku
      */
@@ -45,14 +39,29 @@ public class RaffleActivitySku {
      * 商品金额【积分】
      */
     private BigDecimal productAmount;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
 
     /**
-     * 更新时间
+     * 活动商品数量
      */
-    private Date updateTime;
+    private ActivityCount activityCount;
+
+    @Data
+    public static class ActivityCount {
+        /**
+         * 总次数
+         */
+        private Integer totalCount;
+
+        /**
+         * 日次数
+         */
+        private Integer dayCount;
+
+        /**
+         * 月次数
+         */
+        private Integer monthCount;
+    }
 
 }
+
