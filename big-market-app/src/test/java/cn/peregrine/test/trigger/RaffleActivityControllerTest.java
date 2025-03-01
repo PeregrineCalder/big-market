@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
  * @author: Peregrine Calder
  * @description: 抽奖活动服务测试
  * @date: 2024/5/2 21:31
- * @version: 1.0
+ * @version: 2.0
  */
 @Slf4j
 @RunWith(SpringRunner.class)

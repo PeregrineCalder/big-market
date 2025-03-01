@@ -2,6 +2,7 @@ package cn.peregrine.trigger.api.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  * @version: 1.0
  */
 @Data
-public class RaffleStrategyRuleWeightResponseDTO {
+public class RaffleStrategyRuleWeightResponseDTO implements Serializable {
     // 权重规则配置的抽奖次数
     private Integer ruleWeightCount;
     // 用户在一个活动下完成的总抽奖次数
