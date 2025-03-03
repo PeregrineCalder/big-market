@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.RandomAccess;
-
 /**
  * @projectName: big-market
  * @package: cn.peregrine.domain.activity.service.partake
