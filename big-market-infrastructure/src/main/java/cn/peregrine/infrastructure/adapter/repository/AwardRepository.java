@@ -10,7 +10,6 @@ import cn.peregrine.domain.award.model.valobj.AccountStatusVO;
 import cn.peregrine.domain.award.repository.IAwardRepository;
 import cn.peregrine.infrastructure.dao.*;
 import cn.peregrine.infrastructure.event.EventPublisher;
-import cn.peregrine.infrastructure.persistent.dao.*;
 import cn.peregrine.infrastructure.dao.po.Task;
 import cn.peregrine.infrastructure.dao.po.UserAwardRecord;
 import cn.peregrine.infrastructure.dao.po.UserCreditAccount;

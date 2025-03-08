@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public interface IStrategyRepository {
     List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId);
-    void storeStrategyAwardSearchRateTable(String key, int rateRange, Map<Integer, Integer> strategyAwardSearchRateTable);
+    <K,V>void storeStrategyAwardSearchRateTable(String key, int rateRange, Map<K, V> strategyAwardSearchRateTable);
     int getRateRange(Long strategyId);
     int getRateRange(String key);
     Integer getStrategyAwardAssemble(Long strategyId, int rateKey);
@@ -146,4 +146,9 @@ public interface IStrategyRepository {
      */
     List<StrategyAwardStockKeyVO> queryOpenActivityStrategyAwardList();
 
+    <K,V>Map<K,V> getMap(String key);
+
+    void cacheStrategyArmoryAlgorithm(String key, String beanName);
+
+    String queryStrategyArmoryAlgorithmFromCache(String key);
 }
