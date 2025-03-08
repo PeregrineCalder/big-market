@@ -2,7 +2,6 @@ package cn.peregrine.test.infrastructure;
 
 import cn.peregrine.domain.strategy.model.valobj.RuleTreeVO;
 import cn.peregrine.domain.strategy.repository.IStrategyRepository;
-import cn.peregrine.infrastructure.persistent.po.RuleTreeNode;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.trigger.api.dto
@@ -18,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserActivityAccountResponseDTO {
+public class UserActivityAccountResponseDTO implements Serializable {
     /**
      * 总次数
      */

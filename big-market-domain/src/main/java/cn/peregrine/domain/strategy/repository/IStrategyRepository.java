@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public interface IStrategyRepository {
     List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId);
-    void storeStrategyAwardSearchRateTable(String key, int rateRange, Map<Integer, Integer> strategyAwardSearchRateTable);
+    <K,V>void storeStrategyAwardSearchRateTable(String key, int rateRange, Map<K, V> strategyAwardSearchRateTable);
     int getRateRange(Long strategyId);
     int getRateRange(String key);
     Integer getStrategyAwardAssemble(Long strategyId, int rateKey);
@@ -74,6 +74,11 @@ public interface IStrategyRepository {
      * 获取奖品库存消费队列
      */
     StrategyAwardStockKeyVO takeQueueValue() throws InterruptedException;
+
+    /**
+     * 获取奖品库存消费队列
+     */
+    StrategyAwardStockKeyVO takeQueueValue(Long strategyId, Integer awardId) throws InterruptedException;
 
     /**
      * 更新奖品库存消耗
@@ -133,4 +138,17 @@ public interface IStrategyRepository {
      * @return 权重规则
      */
     List<RuleWeightVO> queryAwardRuleWeight(Long strategyId);
+
+    /**
+     * 查询有效活动的奖品配置
+     *
+     * @return 奖品配置列表
+     */
+    List<StrategyAwardStockKeyVO> queryOpenActivityStrategyAwardList();
+
+    <K,V>Map<K,V> getMap(String key);
+
+    void cacheStrategyArmoryAlgorithm(String key, String beanName);
+
+    String queryStrategyArmoryAlgorithmFromCache(String key);
 }

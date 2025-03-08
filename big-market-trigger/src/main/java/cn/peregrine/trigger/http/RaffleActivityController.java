@@ -24,13 +24,18 @@ import cn.peregrine.domain.strategy.service.IRaffleStrategy;
 import cn.peregrine.domain.strategy.service.armory.IStrategyArmory;
 import cn.peregrine.trigger.api.IRaffleActivityService;
 import cn.peregrine.trigger.api.dto.*;
+import cn.peregrine.types.annotations.DCCValue;
+import cn.peregrine.types.annotations.RateLimiterAccessInterceptor;
 import cn.peregrine.types.enums.ResponseCode;
 import cn.peregrine.types.exception.AppException;
 import cn.peregrine.types.model.Response;
 import com.alibaba.fastjson.JSON;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -53,6 +58,7 @@ import java.util.List;
 @RestController()
 @CrossOrigin("${app.config.cross-origin}")
 @RequestMapping("/api/${app.config.api-version}/raffle/activity/")
+@DubboService(version = "1.0")
 public class RaffleActivityController implements IRaffleActivityService {
     private final SimpleDateFormat dateFormatDay = new SimpleDateFormat("yyyyMMdd");
     @Resource
@@ -74,7 +80,8 @@ public class RaffleActivityController implements IRaffleActivityService {
     @Resource
     private ICreditAdjustService creditAdjustService;
 
-
+    @DCCValue("degradeSwitch:open")
+    private String degradeSwitch;
 
     /**
      * 活动装配 - 数据预热 | 把活动配置的对应的 sku 一起装配
@@ -130,11 +137,23 @@ public class RaffleActivityController implements IRaffleActivityService {
      *     "activityId": 100301
      * }'
      */
+    @RateLimiterAccessInterceptor(key = "userId", fallbackMethod = "drawRateLimiterError", permitsPerSecond = 1.0d, blacklistCount = 1)
+    @HystrixCommand(commandProperties = {
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "150")
+    }, fallbackMethod = "drawHystrixError"
+    )
     @RequestMapping(value = "draw", method = RequestMethod.POST)
     @Override
     public Response<ActivityDrawResponseDTO> draw(@RequestBody ActivityDrawRequestDTO request) {
         try {
             log.info("活动抽奖 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
+            if (!"open".equals(degradeSwitch)) {
+                return Response.<ActivityDrawResponseDTO>builder()
+                        .code(ResponseCode.DEGRADE_SWITCH.getCode())
+                        .info(ResponseCode.DEGRADE_SWITCH.getInfo())
+                        .build();
+            }
+
             // 1. 参数校验
             if (StringUtils.isBlank(request.getUserId()) || null == request.getActivityId()) {
                 throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
@@ -185,6 +204,23 @@ public class RaffleActivityController implements IRaffleActivityService {
                     .build();
         }
     }
+
+    public Response<ActivityDrawResponseDTO> drawRateLimiterError(@RequestBody ActivityDrawRequestDTO request) {
+        log.info("活动抽奖限流 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
+        return Response.<ActivityDrawResponseDTO>builder()
+                .code(ResponseCode.RATE_LIMITER.getCode())
+                .info(ResponseCode.RATE_LIMITER.getInfo())
+                .build();
+    }
+
+    public Response<ActivityDrawResponseDTO> drawHystrixError(@RequestBody ActivityDrawRequestDTO request) {
+        log.info("活动抽奖熔断 userId:{} activityId:{}", request.getUserId(), request.getActivityId());
+        return Response.<ActivityDrawResponseDTO>builder()
+                .code(ResponseCode.HYSTRIX.getCode())
+                .info(ResponseCode.HYSTRIX.getInfo())
+                .build();
+    }
+
 
     /**
      * 日历签到返利接口
@@ -302,6 +338,7 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "query_sku_product_list_by_activity_id", method = RequestMethod.POST)
     @Override
     public Response<List<SkuProductResponseDTO>> querySkuProductListByActivityId(Long activityId) {
         try {
@@ -346,6 +383,7 @@ public class RaffleActivityController implements IRaffleActivityService {
         }
     }
 
+    @RequestMapping(value = "query_user_credit_account", method = RequestMethod.POST)
     @Override
     public Response<BigDecimal> queryUserCreditAccount(String userId) {
         try {

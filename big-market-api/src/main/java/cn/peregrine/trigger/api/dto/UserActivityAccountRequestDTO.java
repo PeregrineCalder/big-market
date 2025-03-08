@@ -2,6 +2,8 @@ package cn.peregrine.trigger.api.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.trigger.api.dto
@@ -12,7 +14,7 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-public class UserActivityAccountRequestDTO {
+public class UserActivityAccountRequestDTO implements Serializable {
     /**
      * 用户ID
      */

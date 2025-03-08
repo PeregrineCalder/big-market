@@ -2,6 +2,8 @@ package cn.peregrine.trigger.api.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @projectName: big-market
  * @package: cn.peregrine.trigger.api.dto
@@ -12,7 +14,7 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-public class RaffleAwardListRequestDTO {
+public class RaffleAwardListRequestDTO implements Serializable {
     // 用户ID
     private String userId;
     // 抽奖活动ID
