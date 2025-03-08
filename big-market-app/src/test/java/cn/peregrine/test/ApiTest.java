@@ -1,6 +1,6 @@
 package cn.peregrine.test;
 
-import cn.peregrine.infrastructure.persistent.redis.RedissonService;
+import cn.peregrine.infrastructure.redis.RedissonService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;

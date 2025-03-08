@@ -1,7 +1,7 @@
 package cn.peregrine.test.infrastructure;
 
-import cn.peregrine.infrastructure.persistent.dao.IRaffleActivityOrderDao;
-import cn.peregrine.infrastructure.persistent.po.RaffleActivityOrder;
+import cn.peregrine.infrastructure.dao.IRaffleActivityOrderDao;
+import cn.peregrine.infrastructure.dao.po.RaffleActivityOrder;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;

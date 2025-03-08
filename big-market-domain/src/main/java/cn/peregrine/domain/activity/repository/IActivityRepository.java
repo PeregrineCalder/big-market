@@ -21,9 +21,12 @@ public interface IActivityRepository {
     boolean subtractionActivitySkuStock(Long sku, String cacheKey, Date endDateTime);
     void activitySkuStockConsumeSendQueue(ActivitySkuStockKeyVO activitySkuStockKeyVO);
     ActivitySkuStockKeyVO takeQueueValue();
+    ActivitySkuStockKeyVO takeQueueValue(Long sku);
     void clearQueueValue();
+    void clearQueueValue(Long sku);
     void updateActivitySkuStock(Long sku);
     void clearActivitySkuStock(Long sku);
+    List<Long> querySkuList();
     UserRaffleOrderEntity queryNoUsedRaffleOrder(PartakeRaffleActivityEntity partakeRaffleActivityEntity);
     ActivityAccountEntity queryActivityAccountByUserId(String userId, Long activityId);
     ActivityAccountMonthEntity queryActivityAccountMonthByUserId(String userId, Long activityId, String month);
